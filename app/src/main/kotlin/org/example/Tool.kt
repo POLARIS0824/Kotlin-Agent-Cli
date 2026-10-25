@@ -1,4 +1,5 @@
 import kotlinx.serialization.json.*
+import kotlin.reflect.typeOf
 
 /* 示例：tools 数组里的一项（OpenAI 格式）
     {
@@ -26,14 +27,14 @@ class Tool(
     // 真正执行的函数
     val execute: (JsonObject) -> String,
 ) {
-    fun toApiJson(): JsonObject = buildJsonObject {
-        put("type", "function")
-        putJsonObject("function") {
-            put("name", name)
-            put("description", description)
-            put("parameters", inputSchema)
-        }
-    }
+    fun toDefinition(): ToolDefinition = ToolDefinition(
+        type = "function",
+        function = FunctionDefinition(
+            name = name,
+            description = description,
+            parameters = inputSchema,
+        )
+    )
 }
 
 /** 从参数里取字符串，缺失时给出清楚的错误信息 */

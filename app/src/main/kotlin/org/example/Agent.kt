@@ -6,53 +6,64 @@ class Agent (
     private val config: AgentConfig 
 ) {
     // 对话历史
-    private val messages = mutableListOf<JsonObject>()
+    private val messages = mutableListOf<ChatMessage>()
+
+    private val json = Json { 
+        ignoreUnknownKeys = true
+    }
 
     // 处理一次用户输入
     fun chat(userInput: String) {
-        messages += buildJsonObject { 
-            put("role", "user")
-            put("content", userInput)
-        }
+        messages += ChatMessage(
+            role = "user",
+            content = userInput
+        )
 
         for (i in 1..config.maxIterations) {
             val resp = client.send(messages, config.systemPrompt, tools)
-            val message = resp["choices"]!!.jsonArray[0].jsonObject["message"]!!.jsonObject
+            val message = resp.choices.firstOrNull()?.message
+                ?: error("API 返回的 choices 为空")
+                
             messages += message
 
-            val text = message["content"]?.jsonPrimitive?.contentOrNull
+            val text = message.content
             if (!text.isNullOrBlank()) println("\nAI: $text")
 
-            val toolCalls = message["tool_calls"]?.jsonArray
+            val toolCalls = message.toolCalls
             if (toolCalls.isNullOrEmpty()) return
 
             for (call in toolCalls) {
-                messages += runToolCall(call.jsonObject)
+                messages += runToolCall(call)
             }
         }
         println("\n[已达到最大轮数 ${config.maxIterations}，已停止]")
     }
 
     // 执行一个工具调用
-    private fun runToolCall(call: JsonObject): JsonObject {
-        val id = call["id"]!!.jsonPrimitive.content
-        val function = call["function"]!!.jsonObject
-        val name = function["name"]!!.jsonPrimitive.content
-        val argsText = function["arguments"]?.jsonPrimitive?.contentOrNull ?: ""
+    private fun runToolCall(call: ToolCall): ChatMessage {
+        val id = call.id
+        val function = call.function
+        val name = call.function.name
+        val argsText = call.function.arguments
         println("  [工具] $name $argsText")
 
         val output = try {
-            val tool = tools.firstOrNull { it.name == name } ?: error("未知工具: $name")
-            val args = Json.parseToJsonElement(argsText.ifBlank { "{}" }).jsonObject
+            val tool = tools.firstOrNull { it.name == name } 
+                ?: error("未知工具: $name")
+                
+            val args = Json.parseToJsonElement(
+                argsText.ifBlank { "{}" }
+            ).jsonObject
+            
             tool.execute(args)
         } catch (e: Exception) {
             "错误：${e.message}"
         }
     
-        return buildJsonObject {
-            put("role", "tool")
-            put("tool_call_id", id)
-            put("content", output)
-        }
+        return ChatMessage(
+            role = "tool",
+            content = output,
+            toolCallId = id
+        )
     }
 }

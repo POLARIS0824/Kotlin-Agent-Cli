@@ -26,6 +26,10 @@
 @rem Set local scope for the variables, and ensure extensions are enabled
 setlocal EnableExtensions
 
+@rem Match the Windows console to the UTF-8 output of the wrapper and app.
+@rem JVM encoding options alone do not change an interactive console's code page.
+"%SystemRoot%\System32\chcp.com" 65001 >NUL
+
 @rem Catch executions from older scripts and ensure they exit cleanly.
 @rem This can be removed once we can be reasonably confident that few people
 @rem will be migrating directly to this new wrapper.
@@ -63,7 +67,7 @@ set APP_HOME=%DIRNAME%
 for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
-set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
+set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m" "-Dfile.encoding=UTF-8" "-Dstdout.encoding=UTF-8" "-Dstderr.encoding=UTF-8"
 
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome

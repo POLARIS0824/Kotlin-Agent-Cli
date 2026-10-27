@@ -1,0 +1,34 @@
+// Zed tasks —— 项目级任务（Ctrl+Shift+B / 命令面板 task: spawn）
+[
+  {
+    "label": "gradle: build",
+    "command": ".\\gradlew.bat",
+    "args": ["build", "--console=plain"],
+    "tags": ["build"],
+    "reveal": "always",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true,
+  },
+  {
+    "label": "gradle: run",
+    "command": ".\\gradlew.bat",
+    "args": ["run", "--console=plain"],
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+  },
+  {
+    "label": "gradle: test",
+    "command": ".\\gradlew.bat",
+    "args": ["test", "--console=plain"],
+    "tags": ["test"],
+    "reveal": "always",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true,
+  },
+  {
+    "label": "gradle: clean",
+    "command": ".\\gradlew.bat",
+    "args": ["clean"],
+    "use_new_terminal": false,
+  },
+]

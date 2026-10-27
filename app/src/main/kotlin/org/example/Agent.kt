@@ -2,7 +2,7 @@ import kotlinx.serialization.json.*
 
 class Agent (
     private val client: ApiClient,
-    private val tools: List<Tool>,
+    private val tools: List<AgentTool>,
     private val config: AgentConfig 
 ) {
     // 对话历史
@@ -50,12 +50,8 @@ class Agent (
         val output = try {
             val tool = tools.firstOrNull { it.name == name } 
                 ?: error("未知工具: $name")
-                
-            val args = Json.parseToJsonElement(
-                argsText.ifBlank { "{}" }
-            ).jsonObject
             
-            tool.execute(args)
+            tool.execute(argsText)
         } catch (e: Exception) {
             "错误：${e.message}"
         }

@@ -15,7 +15,7 @@ class ApiClient(private val config: ApiConfig) {
     fun send(
         messages: List<ChatMessage>,
         systemPrompt: String,
-        tools: List<Tool>,
+        tools: List<AgentTool>,
     ): ChatResponse {
         // 请求正文。OpenAI 格式里 system 提示词是 role=system 的第一条消息，不是顶层字段
         val body = ChatRequest(
@@ -37,6 +37,7 @@ class ApiClient(private val config: ApiConfig) {
             .header("Authorization", "Bearer ${config.apiKey}")
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(
+                // 序列化
                 json.encodeToString(body)
             ))
             .build()
@@ -46,6 +47,7 @@ class ApiClient(private val config: ApiConfig) {
             error("API 请求失败 HTTP ${response.statusCode()}: ${response.body().take(500)}")
         }
 
+        // 反序列化
         return json.decodeFromString<ChatResponse>(response.body())
     }
 }

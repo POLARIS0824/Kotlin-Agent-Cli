@@ -1,3 +1,4 @@
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.*
 import kotlin.reflect.typeOf
 
@@ -19,26 +20,33 @@ import kotlin.reflect.typeOf
     }
 */
 
-class Tool(
+interface AgentTool {
+    val name: String
+    fun execute(arguments: String): String
+    fun toDefinition(): ToolDefinition
+}
+
+class Tool<T>(
     // 给模型的菜单
-    val name: String,
+    override val name: String,
     val description: String,
-    val inputSchema: JsonObject,
-    // 真正执行的函数
-    val execute: (JsonObject) -> String,
-) {
-    fun toDefinition(): ToolDefinition = ToolDefinition(
+    val inputSchema: ParameterSchema,
+    private val serializer: KSerializer<T>,
+    private val action: (T) -> String,
+) : AgentTool {
+
+    override fun execute(arguments: String): String {
+        val args = Json.decodeFromString(serializer, arguments)
+        return action(args)
+    }
+
+    // override 表示这个属性或方法是在实现接口中的声明
+    override fun toDefinition(): ToolDefinition = ToolDefinition(
         type = "function",
         function = FunctionDefinition(
             name = name,
             description = description,
-            parameters = inputSchema,
+            parameters = inputSchema
         )
     )
 }
-
-/** 从参数里取字符串，缺失时给出清楚的错误信息 */
-// 拓展函数
-fun JsonObject.str(key: String): String =
-    this[key]?.jsonPrimitive?.content ?: error("缺少参数: $key")
-

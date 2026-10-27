@@ -1,3 +1,5 @@
+import java.net.http.HttpClient
+
 fun prompt(label: String, default: String? = null): String {
     val hint = if (default != null) "[Default: $default]" else ""
     print("$label $hint: ")
@@ -13,12 +15,31 @@ fun main() {
     val apiConfig = ApiConfig(apiKey = apiKey, baseUrl = baseUrl, model = model)
     val agentConfig = AgentConfig()
 
-    val client = ApiClient(apiConfig)
+    val httpClient = HttpClient.newHttpClient()
+
+    val client = ApiClient(apiConfig, httpClient)
     val tools = createTools(agentConfig.workDir)
     val agent = Agent(client, tools, agentConfig)
 
     println("\nAgent 已启动，工作目录：${agentConfig.workDir}")
     println("输入 exit 退出。")
+
+    // val response = client.streamText(
+    //     messages = listOf(
+    //         ChatMessage(
+    //             role = "user",
+    //             content = "简单介绍 Kotlin 协程"
+    //         )
+    //     ),
+    //     systemPrompt = "你是 Kotlin 教师",
+    //     tools = emptyList()
+    // )
+    
+    // val message = response.choices.first().message
+    
+    // println("返回角色: ${message.role}")
+    // println("内容长度: ${message.content?.length}")
+    // return
 
     while (true) {
         print("\nYou: ")

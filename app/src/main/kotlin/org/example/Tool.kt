@@ -35,7 +35,13 @@ class Tool<T>(
     private val action: (T) -> String,
 ) : AgentTool {
 
+    /**
+     * execute 负责如何运行工具 | Agent 调用 | 接受 JSON 字符串 | 由 Tool 统一实现
+     * 
+     * action 负责这个工具具体做什么 | execute 调用 | 接受解码后的参数对象 | 创建每个工具时传入具体实现
+     */
     override fun execute(arguments: String): String {
+        // 在这里把 arguments 转为 Args
         val args = Json.decodeFromString(serializer, arguments)
         return action(args)
     }

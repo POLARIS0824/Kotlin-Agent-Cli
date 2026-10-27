@@ -41,6 +41,7 @@ data class ChatRequest(
     val model: String,
     val messages: List<ChatMessage>,
     val tools: List<ToolDefinition>? = null,
+    val stream: Boolean = false,
 )
 
 /*
@@ -181,4 +182,21 @@ data class EditFileArgs(
     val oldStr: String,
     @SerialName("new_str")
     val newStr: String
+)
+
+// 流式响应
+@Serializable
+data class StreamChunk(
+    val choices: List<StreamChoice> = emptyList()
+)
+
+@Serializable
+data class StreamChoice(
+    val delta: StreamDelta
+)
+
+@Serializable
+data class StreamDelta(
+    val role: String? = null,
+    val content: String? = null,
 )

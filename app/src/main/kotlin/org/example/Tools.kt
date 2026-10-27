@@ -121,26 +121,4 @@ fun editFileTool(workDir: File) = Tool(
             }
         }
     }
-    // execute = { args -> 
-    //     val file = resolveSafe(workDir, args.str("path"))
-    //     val old = args.str("old_str")
-    //     val new = args.str("new_str")
-
-    //     if (old.isEmpty()) {
-    //         file.parentFile?.mkdirs()
-    //         file.writeText(new)
-    //         "已写入 ${file.name}"
-    //     } else {
-    //         val text = file.readText()
-    //         val count = text.split(old).size - 1
-    //         when (count) {
-    //             0 -> "错误：没有找到 old_str"
-    //             1 -> {
-    //                 file.writeText(text.replace(old, new))
-    //                 "已编辑 ${file.name}"
-    //             }
-    //             else -> "错误：old_str 出现了 $count 次，请提供更长的上下文使其唯一"
-    //         }
-    //     }
-    // },
 )
